@@ -1,0 +1,15 @@
+FROM python:3.10-slim-bullseye
+
+WORKDIR /weather-alert-service
+
+EXPOSE 8080
+
+COPY . .
+
+ENV PYTHONPATH ${PYTHONPATH}:./publisher/
+
+RUN pip install --no-cache-dir --upgrade pipenv==2022.12.19
+
+RUN pipenv install --deploy
+
+CMD ["pipenv", "run", "gunicorn", "publisher.main:api", "--bind", "0.0.0.0:8080","--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker"]

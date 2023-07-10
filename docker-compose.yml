@@ -1,0 +1,23 @@
+version: "3.2"
+
+services:
+  publisher:
+    build:
+      context: ./
+      dockerfile: DockerfilePublisher
+    container_name: was-publisher
+    ports:
+      - 8080:8080
+
+  subscriber:
+    build:
+      context: ./
+      dockerfile: DockerfileSubscriber
+    container_name: was-subscriber
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: was-rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672

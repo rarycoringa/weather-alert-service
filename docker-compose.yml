@@ -8,12 +8,25 @@ services:
     container_name: was-publisher
     ports:
       - 8080:8080
+    networks:
+      - publisher-network
+    environment:
+      - PYTHONPATH=${PYTHONPATH}:./publisher
+      - RABBITMQ_USER=alertsuser
+      - RABBITMQ_PASS=alertspass
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_VHOST=alerts
 
   subscriber:
     build:
       context: ./
       dockerfile: DockerfileSubscriber
     container_name: was-subscriber
+    networks:
+      - subscriber-network
+    environment:
+      - PYTHONPATH="${PYTHONPATH}:./subscriber/"
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -21,3 +34,14 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+    networks:
+      - publisher-network
+      - subscriber-network
+    environment:
+      - RABBITMQ_DEFAULT_USER=alertsuser
+      - RABBITMQ_DEFAULT_PASS=alertspass
+      - RABBITMQ_DEFAULT_VHOST=alerts
+
+networks:
+  publisher-network:
+  subscriber-network:

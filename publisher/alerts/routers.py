@@ -1,9 +1,15 @@
+import os
+
+from typing import Dict
 from typing import NoReturn
+
+import pika as pk
 
 from fastapi import APIRouter
 from fastapi.responses import Response
 
-from publisher.alerts.schemas import AlertSchema
+from publisher.alerts.models import Alert
+from publisher.alerts.models import AlertType
 
 import pika
 
@@ -21,25 +27,26 @@ router: APIRouter = APIRouter(
     response_model=None,
     status_code=202,
     summary="Create Alert",
-    description="Create an alert to be delivered to all subscribed receivers.",
+    description="Create an alert to be published for all subscribers.",
     response_description="Accepted",
     response_class=Response,
 )
+def create_alert(alert: Alert) -> NoReturn:
 
-def create_alert(alert: AlertSchema) -> NoReturn:
-    # Connecting with RabbitMQ
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    channel = connection.channel()
+    broker_user = os.environ.get("RABBITMQ_USER", "guest")
+    broker_pass = os.environ.get("RABBITMQ_PASS", "guest")
+    broker_host = os.environ.get("RABBITMQ_HOST", "localhost")
+    broker_port = os.environ.get("RABBITMQ_PORT", "5672")
+    broker_vhost = os.environ.get("RABBITMQ_VHOST", "/")
 
-    # Creating RabbitMQ exchange
-    channel.exchange_declare(exchange='weather_alert_exchange', exchange_type='direct')
+    broker_connection = pk.BlockingConnection(pk.URLParameters(f"amqp://{broker_user}:{broker_pass}@{broker_host}:{broker_port}/{broker_vhost}"))
 
-    channel.queue_declare(queue='YELLOW')
-    channel.queue_declare(queue='ORANGE')
-    channel.queue_declare(queue='RED')
+    broker_channel = broker_connection.channel()
 
-    channel.basic_publish(exchange='weather_alert_exchange',
-                      routing_key=alert.type,
-                      body='Publishing alert of type ' + alert.type)
+    queue_name = alert.type.value.lower()
 
-    connection.close()
+    broker_channel.queue_declare(queue=queue_name)
+    broker_channel.basic_publish(exchange="", routing_key=queue_name, body=alert.json())
+
+    broker_connection.close()
+    

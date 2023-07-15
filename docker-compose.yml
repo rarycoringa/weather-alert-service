@@ -6,6 +6,9 @@ services:
       context: ./
       dockerfile: DockerfilePublisher
     container_name: was-publisher
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     ports:
       - 8080:8080
     networks:
@@ -23,10 +26,18 @@ services:
       context: ./
       dockerfile: DockerfileSubscriber
     container_name: was-subscriber
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     networks:
       - subscriber-network
     environment:
-      - PYTHONPATH="${PYTHONPATH}:./subscriber/"
+      - PYTHONPATH=${PYTHONPATH}:./subscriber
+      - RABBITMQ_USER=alertsuser
+      - RABBITMQ_PASS=alertspass
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_VHOST=alerts
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -37,6 +48,11 @@ services:
     networks:
       - publisher-network
       - subscriber-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
     environment:
       - RABBITMQ_DEFAULT_USER=alertsuser
       - RABBITMQ_DEFAULT_PASS=alertspass

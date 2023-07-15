@@ -6,7 +6,7 @@ from publisher.alerts.routers import router as alerts_router
 
 api = FastAPI()
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 @api.get("/")
 def index():

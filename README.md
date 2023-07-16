@@ -52,7 +52,7 @@ You can pass one of these categories in `category` property:
 - `"HURRICANE"`
 - `"TORNADO"`
 
-A fully documentation are available
+**A fully documentation are available in the endpoint `/redoc` of the service API, available on `http://localhost:8080`.**
 
 ### Subscriber Engine
 

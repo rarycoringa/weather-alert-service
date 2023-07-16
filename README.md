@@ -13,9 +13,9 @@ This service was built by:
   - github: https://github.com/rarycoringa
   - enrollment number: 20210081823
 - Matheus Cortez
-  - e-mail: 
+  - e-mail: matheus.cortez.093@ufrn.edu.br
   - github: https://github.com/matheus-cortez
-  - enrollment number:
+  - enrollment number: 20230002774
 
 ## Project resources
 

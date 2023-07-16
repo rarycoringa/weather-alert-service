@@ -52,6 +52,8 @@ You can pass one of these categories in `category` property:
 - `"HURRICANE"`
 - `"TORNADO"`
 
+A fully documentation are available
+
 ### Subscriber Engine
 
 And watching the Subscriber Engine logs you will be able to see when a new alert is received by the subscriber.
